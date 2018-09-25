@@ -34,8 +34,8 @@ body {
 }
 
 .bubble {
-	fill: red;
-	opacity:0.7;
+    fill: red;
+    opacity:0.7;
 }
 
 </style>
@@ -55,21 +55,21 @@ var radius = d3.scale.sqrt()
     .range([0, 20]);
 
 
-var light = d3.rgb(255,243,238);			//浅色
-var dark = d3.rgb(100,33,0);				//深色
-var color = d3.interpolate(light,dark);  	//颜色插值
+var light = d3.rgb(255,243,238);            //浅色
+var dark = d3.rgb(100,33,0);                //深色
+var color = d3.interpolate(light,dark);     //颜色插值
 //频率-->颜色深浅
 var linear = d3.scale.linear()
-	.domain([0, 4000])
-	.range([0, 1]);
+    .domain([0, 4000])
+    .range([0, 1]);
 
-var projection = d3.geo.mercator()			//地图的投影
-    .scale(150)    							//scale() 设定放大的比例
-    .translate([width / 2, height / 2])  	//translate() 设定平移
+var projection = d3.geo.mercator()          //地图的投影
+    .scale(150)                             //scale() 设定放大的比例
+    .translate([width / 2, height / 2])     //translate() 设定平移
     .precision(.1);
 
-var path = d3.geo.path()					//地理路径生成器
-    .projection(projection);				//根据地图的地理数据生成 SVG 中 path 元素的路径值
+var path = d3.geo.path()                    //地理路径生成器
+    .projection(projection);                //根据地图的地理数据生成 SVG 中 path 元素的路径值
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -77,19 +77,19 @@ var svg = d3.select("body").append("svg")
 
 //定义一个线性渐变
 var linearGradient = svg.append("defs")
-						.append("linearGradient")
-						.attr("id","linearColor")
-						.attr("x1","0%")
-						.attr("y1","0%")
-						.attr("x2","100%")
-						.attr("y2","0%");
+                        .append("linearGradient")
+                        .attr("id","linearColor")
+                        .attr("x1","0%")
+                        .attr("y1","0%")
+                        .attr("x2","100%")
+                        .attr("y2","0%");
 
 linearGradient.append("stop")
-	.attr("offset","0%")
-	.style("stop-color",light.toString());
+    .attr("offset","0%")
+    .style("stop-color",light.toString());
 linearGradient.append("stop")
-	.attr("offset","100%")
-	.style("stop-color",dark.toString());
+    .attr("offset","100%")
+    .style("stop-color",dark.toString());
 
 
 var graticule = d3.geo.graticule();
@@ -113,78 +113,78 @@ svg.append("path")
     .attr("d", path);
 
 queue()
-	.defer(d3.json, 'test.json')			//导入数据
-	.defer(d3.json, 'worldgeo.json')		//导入地图数据
-	.await(makeMyMap);
+    .defer(d3.json, 'test.json')            //导入数据
+    .defer(d3.json, 'worldgeo.json')        //导入地图数据
+    .await(makeMyMap);
 
 function makeMyMap(error, test, worldgeo) {
-	svg.selectAll()
-		.data(worldgeo.features)
-		.enter().insert("path", ".graticule")
-		.attr("d", path)
-		.style("fill", function(d,i){
-			for(var j=0; j<test.features.length; j++){
-				if(d.properties.SOVEREIGNT.indexOf(test.features[j].properties.name)!=-1){
-					return color(linear(test.features[j].properties.frequency))
-				}
-			}
-			return "#fff";
-			});
+    svg.selectAll()
+        .data(worldgeo.features)
+        .enter().insert("path", ".graticule")
+        .attr("d", path)
+        .style("fill", function(d,i){
+            for(var j=0; j<test.features.length; j++){
+                if(d.properties.SOVEREIGNT.indexOf(test.features[j].properties.name)!=-1){
+                    return color(linear(test.features[j].properties.frequency))
+                }
+            }
+            return "#fff";
+            });
 
-	svg.selectAll()
-		.data(test.features)
-		.enter()
-		.append('path')
-		.attr('d', path.pointRadius(function(d) { return radius(d.properties.kill); }))
-		.attr('class', 'bubble');
+    svg.selectAll()
+        .data(test.features)
+        .enter()
+        .append('path')
+        .attr('d', path.pointRadius(function(d) { return radius(d.properties.kill); }))
+        .attr('class', 'bubble');
 
-	
+    
 
-	//添加一个矩形，并应用线性渐变
-	var colorRect = svg.append("rect")
-					.attr("x", 50)
-					.attr("y", 480)
-					.attr("width", 100)
-					.attr("height", 20)
-					.style("fill","url(#" + linearGradient.attr("id") + ")");
-	//添加文字
-	var minValueText = svg.append("text")
-					.attr("class","valueText")
-					.attr("x", 50)
-					.attr("y", 520)
-					.attr("dy", "-0.3em")
-					.text("0");
-	var maxValueText = svg.append("text")
-				.attr("class","valueText")
-				.attr("x", 100)
-				.attr("y", 520)
-				.attr("dy", "-0.3em")
-				.text("4000次");
-	var frequencyText = svg.append("text")
-				.attr("class","valueText")
-				.attr("x", 160)
-				.attr("y", 500)
-				.attr("dy", "-0.3em")
-				.text("恐怖袭击发生次数");
-	//添加圆形
-	var circle = svg.append("circle")
-				.attr("cx",100)
-				.attr("cy",560)
-				.attr("r",20)
-				.style("class", "bubble")
-				.style("fill","red");;
-	var killvalue = svg.append("text")
-				.attr("class","valueText")
-				.attr("x", 75)
-				.attr("y", 600)
-				.attr("dy", "-0.3em")
-				.text("15000人");
-	var killText = svg.append("text")
-				.attr("class","valueText")
-				.attr("x", 160)
-				.attr("y", 580)
-				.attr("dy", "-0.3em")
-				.text("恐怖袭击死亡人数");
+    //添加一个矩形，并应用线性渐变
+    var colorRect = svg.append("rect")
+                    .attr("x", 50)
+                    .attr("y", 480)
+                    .attr("width", 100)
+                    .attr("height", 20)
+                    .style("fill","url(#" + linearGradient.attr("id") + ")");
+    //添加文字
+    var minValueText = svg.append("text")
+                    .attr("class","valueText")
+                    .attr("x", 50)
+                    .attr("y", 520)
+                    .attr("dy", "-0.3em")
+                    .text("0");
+    var maxValueText = svg.append("text")
+                .attr("class","valueText")
+                .attr("x", 100)
+                .attr("y", 520)
+                .attr("dy", "-0.3em")
+                .text("4000次");
+    var frequencyText = svg.append("text")
+                .attr("class","valueText")
+                .attr("x", 160)
+                .attr("y", 500)
+                .attr("dy", "-0.3em")
+                .text("恐怖袭击发生次数");
+    //添加圆形
+    var circle = svg.append("circle")
+                .attr("cx",100)
+                .attr("cy",560)
+                .attr("r",20)
+                .style("class", "bubble")
+                .style("fill","red");;
+    var killvalue = svg.append("text")
+                .attr("class","valueText")
+                .attr("x", 75)
+                .attr("y", 600)
+                .attr("dy", "-0.3em")
+                .text("15000人");
+    var killText = svg.append("text")
+                .attr("class","valueText")
+                .attr("x", 160)
+                .attr("y", 580)
+                .attr("dy", "-0.3em")
+                .text("恐怖袭击死亡人数");
 
 }
 
